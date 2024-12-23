@@ -11,7 +11,11 @@ require('dotenv').config();
 
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
-app.use(cors({ origin: 'http://localhost:5173' }));
+app.use(cors({
+  origin: '*', // Permitir todas las solicitudes
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Métodos permitidos
+  allowedHeaders: ['Content-Type', 'Authorization'], // Encabezados permitidos
+}));
 
 const nodemailer = require("nodemailer");
 
