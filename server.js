@@ -4,7 +4,7 @@ const pool = require('./db');
 const QRCode = require('qrcode');
 const bodyParser = require('body-parser');
 const app = express();
-const port = 5000;
+const port = process.env.PORT; // Render asignará dinámicamente el puerto
 const jwt = require('jsonwebtoken');
 
 require('dotenv').config();
@@ -450,5 +450,5 @@ app.post('/api/hotmart/webhook', async (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Servidor escuchando en http://localhost:${port}`);
+  console.log(`Servidor escuchando en el puerto ${port}`);
 });
