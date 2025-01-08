@@ -187,7 +187,7 @@ app.get('/api/price-visibility', (req, res) => {
 });
 
 // Endpoint para actualizar visibilidad de precios (solo admin)
-app.put('/api/price-visibility', verificarToken, (req, res) => {
+app.put('/api/price-visibility', (req, res) => {
   const { showNormalPrice, showLaunchPrice, showSpecialPrice } = req.body;
 
   priceVisibility = {
