@@ -173,6 +173,69 @@ const enviarCorreoConQR = async (email, qrCodeBase64, nombre, apellido, asientoN
   }
 };
 
+  // Obtener todos los precios
+app.get('/api/prices', (req, res) => {
+  const query = 'SELECT * FROM prices';
+  db.query(query, (err, results) => {
+    if (err) {
+      res.status(500).send('Error al obtener los precios.');
+      return;
+    }
+    res.json(results);
+  });
+});
+
+// Obtener un precio por ID
+app.get('/api/prices/:id', (req, res) => {
+  const query = 'SELECT * FROM prices WHERE id = ?';
+  db.query(query, [req.params.id], (err, results) => {
+    if (err || results.length === 0) {
+      res.status(404).send('Precio no encontrado.');
+      return;
+    }
+    res.json(results[0]);
+  });
+});
+
+// Crear un nuevo precio
+app.post('/api/prices', (req, res) => {
+  const { normal_price, launch_price, special_price } = req.body;
+  const query = 'INSERT INTO prices (normal_price, launch_price, special_price, last_updated) VALUES (?, ?, ?, NOW())';
+  db.query(query, [normal_price, launch_price, special_price], (err, results) => {
+    if (err) {
+      res.status(500).send('Error al crear el precio.');
+      return;
+    }
+    res.status(201).send('Precio creado exitosamente.');
+  });
+});
+
+// Actualizar un precio existente
+app.put('/api/prices/:id', (req, res) => {
+  const { normal_price, launch_price, special_price } = req.body;
+  const query = 'UPDATE prices SET normal_price = ?, launch_price = ?, special_price = ?, last_updated = NOW() WHERE id = ?';
+  db.query(query, [normal_price, launch_price, special_price, req.params.id], (err, results) => {
+    if (err || results.affectedRows === 0) {
+      res.status(404).send('Error al actualizar el precio.');
+      return;
+    }
+    res.send('Precio actualizado exitosamente.');
+  });
+});
+
+// Eliminar un precio
+app.delete('/api/prices/:id', (req, res) => {
+  const query = 'DELETE FROM prices WHERE id = ?';
+  db.query(query, [req.params.id], (err, results) => {
+    if (err || results.affectedRows === 0) {
+      res.status(404).send('Error al eliminar el precio.');
+      return;
+    }
+    res.send('Precio eliminado exitosamente.');
+  });
+});
+
+
 const verificarToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -429,35 +492,6 @@ app.post('/api/hotmart/webhook', async (req, res) => {
         'INSERT INTO Comprobante (compra_id) VALUES (?)',
         [compraId]
       );
-
-
-      // Ejemplo usando Express.js
-app.get('/prices', async (req, res) => {
-  try {
-    const prices = await PriceModel.findOne(); // Suponiendo que tienes un modelo PriceModel
-    res.json(prices);
-  } catch (error) {
-    res.status(500).json({ message: 'Error al obtener precios' });
-  }
-});
-
-
-app.post('/admin/update-prices', async (req, res) => {
-  const { normalPrice, launchPrice, specialPrice } = req.body;
-
-  try {
-    // Actualizar precios en la base de datos
-    const updatedPrices = await PriceModel.findOneAndUpdate(
-      {}, // Asume un único documento de precios
-      { normalPrice, launchPrice, specialPrice },
-      { new: true, upsert: true } // Crea el documento si no existe
-    );
-
-    res.json({ message: 'Precios actualizados', prices: updatedPrices });
-  } catch (error) {
-    res.status(500).json({ message: 'Error al actualizar precios' });
-  }
-});
 
       await enviarCorreoConQR(email, codigoQR, name, lastname, asientoNumero);
 
