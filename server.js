@@ -173,6 +173,32 @@ const enviarCorreoConQR = async (email, qrCodeBase64, nombre, apellido, asientoN
   }
 };
 
+// Obtener todos los precios
+app.get('/api/prices', async (req, res) => {
+  try {
+    const [results] = await pool.query('SELECT * FROM Precios');
+    res.json(results);
+  } catch (error) {
+    console.error('Error al obtener los precios:', error);
+    res.status(500).send('Error al obtener los precios.');
+  }
+});
+
+// Obtener un precio por ID
+app.get('/api/prices/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const [results] = await pool.query('SELECT * FROM Precios WHERE Id_Precios = ?', [id]);
+    if (results.length === 0) {
+      return res.status(404).send('Precio no encontrado.');
+    }
+    res.json(results[0]);
+  } catch (error) {
+    console.error(`Error al obtener el precio con ID ${id}:`, error);
+    res.status(500).send('Error al obtener el precio.');
+  }
+});
+
 const verificarToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -195,31 +221,6 @@ const verificarToken = (req, res, next) => {
 
 module.exports = verificarToken;
 
-
-  // Obtener todos los precios
-  app.get('/api/prices', (req, res) => {
-    const query = 'SELECT * FROM prices';
-    db.query(query, (err, results) => {
-      if (err) {
-        res.status(500).send('Error al obtener los precios.');
-        return;
-      }
-      res.json(results);
-    });
-  });
-  
-  // Obtener un precio por ID
-  app.get('/api/prices/:id', (req, res) => {
-    const query = 'SELECT * FROM prices WHERE id = ?';
-    db.query(query, [req.params.id], (err, results) => {
-      if (err || results.length === 0) {
-        res.status(404).send('Precio no encontrado.');
-        return;
-      }
-      res.json(results[0]);
-    });
-  });
-  
 // Ruta para login con generación de JWT
 app.post('/api/admin/login', async (req, res) => {
   const { email, contrasena } = req.body;
