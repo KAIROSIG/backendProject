@@ -173,6 +173,32 @@ const enviarCorreoConQR = async (email, qrCodeBase64, nombre, apellido, asientoN
   }
 };
 
+
+// Mock data store para la visibilidad de precios
+let priceVisibility = {
+  showNormalPrice: true,
+  showLaunchPrice: true,
+  showSpecialPrice: true,
+};
+
+// Endpoint para obtener visibilidad de precios
+app.get('/api/price-visibility', (req, res) => {
+  res.json(priceVisibility);
+});
+
+// Endpoint para actualizar visibilidad de precios (solo admin)
+app.put('/api/price-visibility', verificarToken, (req, res) => {
+  const { showNormalPrice, showLaunchPrice, showSpecialPrice } = req.body;
+
+  priceVisibility = {
+    showNormalPrice: showNormalPrice !== undefined ? showNormalPrice : priceVisibility.showNormalPrice,
+    showLaunchPrice: showLaunchPrice !== undefined ? showLaunchPrice : priceVisibility.showLaunchPrice,
+    showSpecialPrice: showSpecialPrice !== undefined ? showSpecialPrice : priceVisibility.showSpecialPrice,
+  };
+
+  res.json({ message: 'Price visibility updated successfully', priceVisibility });
+});
+
 // Obtener todos los precios
 app.get('/api/prices', async (req, res) => {
   try {
