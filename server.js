@@ -199,6 +199,41 @@ app.get('/api/prices/:id', async (req, res) => {
   }
 });
 
+// Crear un nuevo precio
+app.post('/api/prices', async (req, res) => {
+  const { Precio_normal, Precio_Especial, Precio_Lanzamiento } = req.body;
+  try {
+    const [result] = await pool.query(
+      'INSERT INTO Precios (Precio_normal, Precio_Especial, Precio_Lanzamiento) VALUES (?, ?, ?)',
+      [Precio_normal, Precio_Especial, Precio_Lanzamiento]
+    );
+    res.status(201).json({ message: 'Precio creado exitosamente', id: result.insertId });
+  } catch (error) {
+    console.error('Error al crear el precio:', error);
+    res.status(500).send('Error al crear el precio.');
+  }
+});
+
+// Actualizar un precio existente
+app.put('/api/prices/:id', async (req, res) => {
+  const { id } = req.params;
+  const { Precio_normal, Precio_Especial, Precio_Lanzamiento } = req.body;
+  try {
+    const [result] = await pool.query(
+      'UPDATE Precios SET Precio_normal = ?, Precio_Especial = ?, Precio_Lanzamiento = ? WHERE Id_Precios = ?',
+      [Precio_normal, Precio_Especial, Precio_Lanzamiento, id]
+    );
+    if (result.affectedRows === 0) {
+      return res.status(404).send('Precio no encontrado.');
+    }
+    res.json({ message: 'Precio actualizado exitosamente' });
+  } catch (error) {
+    console.error(`Error al actualizar el precio con ID ${id}:`, error);
+    res.status(500).send('Error al actualizar el precio.');
+  }
+});
+
+
 const verificarToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
