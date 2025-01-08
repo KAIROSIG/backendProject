@@ -429,7 +429,35 @@ app.post('/api/hotmart/webhook', async (req, res) => {
         'INSERT INTO Comprobante (compra_id) VALUES (?)',
         [compraId]
       );
-      
+
+
+      // Ejemplo usando Express.js
+app.get('/prices', async (req, res) => {
+  try {
+    const prices = await PriceModel.findOne(); // Suponiendo que tienes un modelo PriceModel
+    res.json(prices);
+  } catch (error) {
+    res.status(500).json({ message: 'Error al obtener precios' });
+  }
+});
+
+
+app.post('/admin/update-prices', async (req, res) => {
+  const { normalPrice, launchPrice, specialPrice } = req.body;
+
+  try {
+    // Actualizar precios en la base de datos
+    const updatedPrices = await PriceModel.findOneAndUpdate(
+      {}, // Asume un único documento de precios
+      { normalPrice, launchPrice, specialPrice },
+      { new: true, upsert: true } // Crea el documento si no existe
+    );
+
+    res.json({ message: 'Precios actualizados', prices: updatedPrices });
+  } catch (error) {
+    res.status(500).json({ message: 'Error al actualizar precios' });
+  }
+});
 
       await enviarCorreoConQR(email, codigoQR, name, lastname, asientoNumero);
 
